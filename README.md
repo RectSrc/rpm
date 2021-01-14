@@ -1,0 +1,2 @@
+# rpm
+rect package manager
