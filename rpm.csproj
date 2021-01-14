@@ -1,8 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <NoWin32Manifest>true</NoWin32Manifest>
+    <Authors>khhs</Authors>
+    <Company>RectSrc</Company>
+    <Description>The ReCT Package Manager is for installing ReCT packages</Description>
+    <RepositoryUrl>https://github.com/RectSrc/rpm</RepositoryUrl>
   </PropertyGroup>
 
 </Project>
