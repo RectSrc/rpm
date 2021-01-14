@@ -44,11 +44,12 @@ namespace rpm
                     {
                         Console.WriteLine("Deps exists, downloading... ");
                         Directory.CreateDirectory(Directory.GetCurrentDirectory() + "/packages/" + packageName + "-DEPS/");
-                        string[] deps = wc.DownloadString("https://raw.githubusercontent.com/RectSrc/rpm/master/packages/" + packageName + "/" + packageName + "/deps.dps").Split("\n");
-                        foreach(string dep in deps)
+                        string[] deps = wc.DownloadString("https://raw.githubusercontent.com/RectSrc/rpm/master/packages/" + packageName + "/" + packageName + "-DEPS/deps.dps").Split(Environment.NewLine.ToCharArray());
+                        foreach (string dep in deps)
                         {
                             try
                             {
+                                Console.WriteLine("Downloading " + dep + "...");
                                 wc.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/master/packages/" + packageName + "/" + packageName + "-DEPS/" + dep, Directory.GetCurrentDirectory() + "/packages/" + packageName + "-DEPS/" + dep);
                             } catch { }
                         }
