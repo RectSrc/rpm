@@ -2,11 +2,11 @@
 
 namespace rpm
 {
-    class Program
+    class rpm
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            
         }
     }
 }
