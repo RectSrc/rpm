@@ -66,6 +66,32 @@ namespace rpm
                 Console.WriteLine("Made by the RectSrc team");
                 Console.WriteLine("Commands:");
                 Console.WriteLine("get [packagename]    -Gets the package called [packagename]");
+            } else if(args.Length == 2 && args[0] == "remove")
+            {
+                string packageName = args[1];
+                Console.WriteLine("Removing package " + packageName + "...");
+                if (File.Exists(Directory.GetCurrentDirectory() + "/packages/" + packageName + ".dll"))
+                {
+                    File.Delete(Directory.GetCurrentDirectory() + "/packages/" + packageName + ".dll");
+                    Console.WriteLine("Checking for deps...");
+                    if (Directory.Exists(Directory.GetCurrentDirectory() + "/packages/" + packageName + "-DEPS/")){
+                        foreach(string filePath in Directory.GetFiles(Directory.GetCurrentDirectory() + "/packages/" + packageName + "-DEPS/"))
+                        {
+                            Console.WriteLine("Removing " + filePath + "...");
+                            File.Delete(filePath);
+                        }
+                        Directory.Delete(Directory.GetCurrentDirectory() + "/packages/" + packageName + "-DEPS/");
+                    }
+                    else
+                    {
+                        Console.WriteLine("No deps, skipping...");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("No package called " + packageName + " installed, unable to remove");
+                }
+
             }
             else
             {
