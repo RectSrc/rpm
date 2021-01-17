@@ -1,3 +1,4 @@
+# This info has been moved! You can still acess this, but it will not get the same stream of updates. New docs at [https://rectsrc.github.io/rpm/docs/](https://rectsrc.github.io/rpm/docs/)
 # rpm
 rect package manager
 ## Installation
