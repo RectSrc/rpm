@@ -1,102 +1,158 @@
 ﻿using System;
 using System.Net;
 using System.IO;
+using Newtonsoft.Json;
 namespace rpm
 {
-    class rpm
+    public static class rpm
     {
-        static public bool IsValid(string url)
+
+        static string branch = "beta";
+        static string verison = "2";
+
+
+        public static bool IsValid(string url)
         {
-
-            bool Test = true;
-            Uri urlCheck = new Uri(url);
-            WebRequest request = WebRequest.Create(urlCheck);
-            request.Timeout = 15000;
-
-            WebResponse response;
+            WebRequest webRequest = WebRequest.Create(url);
+            WebResponse webResponse;
             try
             {
-                response = request.GetResponse();
+                webResponse = webRequest.GetResponse();
             }
-            catch (Exception)
+            catch //If exception thrown then couldn't get response from address
             {
-                Test = false; //url does not exist
+                return false;
             }
-
-            return Test;
-
+            return true;
         }
-        static void Main(string[] args)
+
+        public static void Main(string[] args)
         {
+            if (!Directory.Exists(Directory.GetCurrentDirectory() + "/packages/"))
+                Directory.CreateDirectory(Directory.GetCurrentDirectory() + "/packages/");
+
             if (args.Length == 2 && args[0] == "get")
             {
                 string packageName = args[1];
-                WebClient wc = new WebClient();
-                Console.WriteLine("Checking if package " + packageName + " exists...");
-                if (IsValid("https://raw.githubusercontent.com/RectSrc/rpm/master/packages/" + packageName + "/" + packageName + ".dll"))
+                WebClient client = new WebClient();
+                if (IsValid("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json") && !File.Exists(Directory.GetCurrentDirectory() + "/packages/" + packageName + ".json"))
                 {
-                    Console.WriteLine("Getting package " + packageName + "...");
-                    Console.Write("Getting package from ");
-                    Console.Write("https://raw.githubusercontent.com/RectSrc/rpm/master/packages/" + packageName + "/" + packageName + ".dll\n");
-                    Directory.CreateDirectory(Directory.GetCurrentDirectory() + "/packages/");
-                    wc.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/master/packages/" + packageName + "/" + packageName + ".dll", Directory.GetCurrentDirectory() + "/packages/" + packageName + ".dll");
-                    if (IsValid("https://raw.githubusercontent.com/RectSrc/rpm/master/packages/" + packageName + "/" + packageName + "-DEPS/deps.dps"))
+                    string packageInfo = client.DownloadString("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json");
+                    Package package = JsonConvert.DeserializeObject<Package>(packageInfo);
+                    if (package.packageVerison == verison)
                     {
-                        Console.WriteLine("Deps exists, downloading... ");
-                        Directory.CreateDirectory(Directory.GetCurrentDirectory() + "/packages/" + packageName + "-DEPS/");
-                        string[] deps = wc.DownloadString("https://raw.githubusercontent.com/RectSrc/rpm/master/packages/" + packageName + "/" + packageName + "-DEPS/deps.dps").Split(Environment.NewLine.ToCharArray());
-                        foreach (string dep in deps)
+                        foreach (string dep in package.dependencies)
                         {
-                            try
-                            {
-                                Console.WriteLine("Downloading " + dep + "...");
-                                wc.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/master/packages/" + packageName + "/" + packageName + "-DEPS/" + dep, Directory.GetCurrentDirectory() + "/packages/" + packageName + "-DEPS/" + dep);
-                            } catch { }
+                            client.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/" + dep, Directory.GetCurrentDirectory() + "/packages/" + dep);
                         }
+                        client.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json", Directory.GetCurrentDirectory() + "/packages/" + packageName + ".json");
                     }
-                    Console.WriteLine("package " + packageName + " installed!");
+                    else
+                    {
+                        Console.WriteLine("Outdated package or client");
+                        Console.WriteLine("Package uses verison " + package.packageVerison + ", client uses verison " + verison);
+                    }
+
+                    
                 }
                 else
                 {
-                    Console.WriteLine("Installation of package" + packageName + " failed, no package called " + packageName);
+                    if (!IsValid("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json"))
+                        Console.WriteLine("Package " + packageName + " not found!");
+                    else
+                        Console.WriteLine("Package " + packageName + " is already installed!\nUpdate with rpm update " + packageName);
                 }
-            } else if(args.Length == 0)
+            }
+            else if (args.Length == 2 && args[0] == "remove")
+            {
+                string packageName = args[1];
+                if (File.Exists(Directory.GetCurrentDirectory() + "/packages/" + packageName + ".json"))
+                {
+                    string packageInfo = File.ReadAllText(Directory.GetCurrentDirectory() + "/packages/" + packageName + ".json");
+                    Package package = JsonConvert.DeserializeObject<Package>(packageInfo);
+                    foreach (string dep in package.dependencies)
+                    {
+                        File.Delete(Directory.GetCurrentDirectory() + "/packages/" + dep);
+                    }
+                    File.Delete(Directory.GetCurrentDirectory() + "/packages/" + packageName + ".json");
+                }
+                else
+                {
+                    Console.WriteLine("Package not installed!");
+                }
+
+            }
+            else if (args.Length == 2 && args[0] == "update")
+            {
+                UpdatePackage(args[1]);
+            }
+            else
             {
                 Console.WriteLine("ReCT Package Manager(rpm)");
                 Console.WriteLine("Made by the RectSrc team");
                 Console.WriteLine("Commands:");
                 Console.WriteLine("get [packagename]    -Gets the package called [packagename]");
-            } else if(args.Length == 2 && args[0] == "remove")
+                Console.WriteLine("remove [packagename]    -Removes the package called [packagename]");
+                Console.WriteLine("update [packagename]    -Updates the package called [packagename]");
+            }
+        }
+
+        static void UpdatePackage(string packageName)
+        {
+            if (File.Exists(Directory.GetCurrentDirectory() + "/packages/" + packageName + ".json"))
             {
-                string packageName = args[1];
-                Console.WriteLine("Removing package " + packageName + "...");
-                if (File.Exists(Directory.GetCurrentDirectory() + "/packages/" + packageName + ".dll"))
+                string packageInfo = File.ReadAllText(Directory.GetCurrentDirectory() + "/packages/" + packageName + ".json");
+                Package package = JsonConvert.DeserializeObject<Package>(packageInfo);
+                foreach (string dep in package.dependencies)
                 {
-                    File.Delete(Directory.GetCurrentDirectory() + "/packages/" + packageName + ".dll");
-                    Console.WriteLine("Checking for deps...");
-                    if (Directory.Exists(Directory.GetCurrentDirectory() + "/packages/" + packageName + "-DEPS/")){
-                        foreach(string filePath in Directory.GetFiles(Directory.GetCurrentDirectory() + "/packages/" + packageName + "-DEPS/"))
+                    File.Delete(dep);
+                }
+                WebClient client = new WebClient();
+                if (IsValid("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json") && !File.Exists(Directory.GetCurrentDirectory() + "/packages/" + packageName + ".json"))
+                {
+                    string packageInfoForDownload = client.DownloadString("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json");
+                    Package packageUpdate = JsonConvert.DeserializeObject<Package>(packageInfoForDownload);
+                    if (packageUpdate.packageVerison == verison)
+                    {
+                        foreach (string dep in packageUpdate.dependencies)
                         {
-                            Console.WriteLine("Removing " + filePath + "...");
-                            File.Delete(filePath);
+                            client.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/" + dep, Directory.GetCurrentDirectory() + "/packages/" + dep);
                         }
-                        Directory.Delete(Directory.GetCurrentDirectory() + "/packages/" + packageName + "-DEPS/");
+                        client.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json", Directory.GetCurrentDirectory() + "/packages/" + packageName + ".json");
                     }
                     else
                     {
-                        Console.WriteLine("No deps, skipping...");
+                        Console.WriteLine("Outdated package or client!");
+                        Console.WriteLine("Package uses verison " + packageUpdate.packageVerison + ", client uses verison " + verison);
                     }
+
+                    
                 }
                 else
                 {
-                    Console.WriteLine("No package called " + packageName + " installed, unable to remove");
+                    if (!IsValid("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json"))
+                        Console.WriteLine("Package " + packageName + " not found!");
                 }
-
             }
             else
             {
-                Console.WriteLine("Invalid arguments");
+                Console.WriteLine("Package not installed!");
             }
+        }
+
+
+        [Serializable]
+        public class Package
+        {
+
+            public string packageVerison;
+            public string[] dependencies;
+            public Package(string pv, string[] deps)
+            {
+                packageVerison = pv;
+                dependencies = deps;
+            }
+
         }
     }
 }
