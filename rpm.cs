@@ -28,6 +28,10 @@ namespace rpm
 
         public static void Main(string[] args)
         {
+
+            //Package pack = new Package("2", new string[] { "package.json" });
+            //Console.WriteLine(JsonConvert.SerializeObject(pack));
+
             if (!Directory.Exists(Directory.GetCurrentDirectory() + "/packages/"))
                 Directory.CreateDirectory(Directory.GetCurrentDirectory() + "/packages/");
 
