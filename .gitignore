@@ -337,6 +337,6 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
-
+*.json
 packages/
 packages/*
