@@ -2,6 +2,9 @@
 using System.Net;
 using System.IO;
 using Newtonsoft.Json;
+using System.CodeDom.Compiler;
+using System.Diagnostics;
+using Microsoft.CSharp;
 namespace rpm
 {
     public static class rpm
@@ -28,6 +31,10 @@ namespace rpm
 
         public static void Main(string[] args)
         {
+
+            //Packagetools are experimental, so hands off.
+            //packagetools.Setup setup = new packagetools.Setup("Byte");
+            //setup.Run();
 
             //Package pack = new Package("2", new string[] { "package.json" });
             //Console.WriteLine(JsonConvert.SerializeObject(pack));
