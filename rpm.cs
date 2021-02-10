@@ -10,7 +10,7 @@ namespace rpm
     public static class rpm
     {
 
-        static string branch = "beta";
+        static string branch = "main";
         static string verison = "2";
 
 
