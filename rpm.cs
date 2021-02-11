@@ -16,7 +16,7 @@ namespace rpm
 
         static string branch = "master";
         static string verison = "2";
-        static string currentLang = File.ReadAllText(Directory.GetCurrentDirectory() + "/currentlang.json");
+        static string currentLang = "";
         static Dictionary<string, Language> languages = JsonConvert.DeserializeObject<Dictionary<string, Language>>(File.ReadAllText(Directory.GetCurrentDirectory() + "/languages.json"));
 
         public static bool IsValid(string url)
