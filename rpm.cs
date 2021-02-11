@@ -54,6 +54,7 @@ namespace rpm
                     {
                         foreach (string dep in package.dependencies)
                         {
+                            Console.WriteLine("Downloading " + dep + " to " + Directory.GetCurrentDirectory() + "/packages/" + dep);
                             client.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/" + dep, Directory.GetCurrentDirectory() + "/packages/" + dep);
                         }
                         client.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json", Directory.GetCurrentDirectory() + "/packages/" + packageName + ".json");
