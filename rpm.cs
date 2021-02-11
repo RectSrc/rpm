@@ -5,6 +5,8 @@ using Newtonsoft.Json;
 using System.CodeDom.Compiler;
 using System.Diagnostics;
 using Microsoft.CSharp;
+using System.Collections;
+using System.Collections.Generic;
 namespace rpm
 {
     public static class rpm
@@ -12,7 +14,8 @@ namespace rpm
 
         static string branch = "master";
         static string verison = "2";
-
+        static string currentLang = File.ReadAllText(Directory.GetCurrentDirectory() + "/currentlang.json");
+        static Dictionary<string, Language> languages = JsonConvert.DeserializeObject<Dictionary<string, Language>>(File.ReadAllText(Directory.GetCurrentDirectory() + "/languages.json"));
 
         public static bool IsValid(string url)
         {
@@ -38,7 +41,6 @@ namespace rpm
 
             //Package pack = new Package("2", new string[] { "package.json" });
             //Console.WriteLine(JsonConvert.SerializeObject(pack));
-
             if (!Directory.Exists(Directory.GetCurrentDirectory() + "/packages/"))
                 Directory.CreateDirectory(Directory.GetCurrentDirectory() + "/packages/");
 
@@ -54,15 +56,15 @@ namespace rpm
                     {
                         foreach (string dep in package.dependencies)
                         {
-                            Console.WriteLine("Downloading " + dep + " to " + Directory.GetCurrentDirectory() + "/packages/" + dep);
+                            Console.WriteLine(languages[currentLang].phrases["download"].phrase(new string[] { dep, Directory.GetCurrentDirectory() + dep }));
                             client.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/" + dep, Directory.GetCurrentDirectory() + "/packages/" + dep);
                         }
                         client.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json", Directory.GetCurrentDirectory() + "/packages/" + packageName + ".json");
                     }
                     else
                     {
-                        Console.WriteLine("Outdated package or client");
-                        Console.WriteLine("Package uses verison " + package.packageVerison + ", client uses verison " + verison);
+                        Console.WriteLine(languages[currentLang].phrases["outdated"].phrase(new string[0]));
+                        Console.WriteLine(languages[currentLang].phrases["outdatedinfo"].phrase(new string[] { package.packageVerison, verison }));
                     }
 
                     
@@ -70,9 +72,9 @@ namespace rpm
                 else
                 {
                     if (!IsValid("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json"))
-                        Console.WriteLine("Package " + packageName + " not found!");
+                        Console.WriteLine(languages[currentLang].phrases["notfound"].phrase(new string[] { packageName }));
                     else
-                        Console.WriteLine("Package " + packageName + " is already installed!\nUpdate with rpm update " + packageName);
+                        Console.WriteLine(languages[currentLang].phrases["update"].phrase(new string[] { packageName, packageName }));
                 }
             }
             else if (args.Length == 2 && args[0] == "remove")
@@ -90,7 +92,7 @@ namespace rpm
                 }
                 else
                 {
-                    Console.WriteLine("Package not installed!");
+                    Console.WriteLine(languages[currentLang].phrases["notinstalled"].phrase(new string[0]));
                 }
 
             }
@@ -100,12 +102,13 @@ namespace rpm
             }
             else
             {
-                Console.WriteLine("ReCT Package Manager(rpm)");
+                Console.WriteLine(languages[currentLang].phrases["info"].phrase(new string[0]));
+                /*Console.WriteLine("ReCT Package Manager(rpm)");
                 Console.WriteLine("Made by the RectSrc team");
                 Console.WriteLine("Commands:");
                 Console.WriteLine("get [packagename]    -Gets the package called [packagename]");
                 Console.WriteLine("remove [packagename]    -Removes the package called [packagename]");
-                Console.WriteLine("update [packagename]    -Updates the package called [packagename]");
+                Console.WriteLine("update [packagename]    -Updates the package called [packagename]");*/
             }
         }
 
@@ -134,8 +137,8 @@ namespace rpm
                     }
                     else
                     {
-                        Console.WriteLine("Outdated package or client!");
-                        Console.WriteLine("Package uses verison " + packageUpdate.packageVerison + ", client uses verison " + verison);
+                        Console.WriteLine(languages[currentLang].phrases["outdated"].phrase(new string[0]));
+                        Console.WriteLine(languages[currentLang].phrases["outdatedinfo"].phrase(new string[] { packageUpdate.packageVerison, verison }));
                     }
 
                     
@@ -143,12 +146,12 @@ namespace rpm
                 else
                 {
                     if (!IsValid("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json"))
-                        Console.WriteLine("Package " + packageName + " not found!");
+                        Console.WriteLine(languages[currentLang].phrases["notfound"].phrase(new string[] { packageName }));
                 }
             }
             else
             {
-                Console.WriteLine("Package not installed!");
+                Console.WriteLine(languages[currentLang].phrases["notinstalled"].phrase(new string[0]));
             }
         }
 
@@ -165,6 +168,48 @@ namespace rpm
                 dependencies = deps;
             }
 
+        }
+
+        public class Language
+        {
+            public Dictionary<string, Phrase> phrases;
+
+            public Language()
+            {
+                phrases = new Dictionary<string, Phrase>();
+            }
+        }
+
+        public class Phrase
+        {
+            //Example phrase
+            public string rootphrase = "downloading {val0} to {val1}";
+
+            public string phrase(string[] values)
+            {
+                string outPhrase = rootphrase;
+
+                for (int i = 0; i < values.Length; i++)
+                    outPhrase = tools.ReplaceFirst(outPhrase, "{val" + i.ToString() + "}", values[i]);
+                return outPhrase;
+            }
+
+            public Phrase(string text)
+            {
+                rootphrase = text;
+            }
+        }
+    }
+
+    public static class tools {
+        public static string ReplaceFirst(string text, string search, string replace)
+        {
+            int pos = text.IndexOf(search);
+            if (pos < 0)
+            {
+                return text;
+            }
+            return text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
         }
     }
 }

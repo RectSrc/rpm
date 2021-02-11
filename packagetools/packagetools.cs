@@ -47,7 +47,15 @@ namespace packagetools
             rpm.rpm.Package package = new rpm.rpm.Package(projectName, Directory.GetFiles(Directory.GetCurrentDirectory()));
             string json = JsonConvert.SerializeObject(package);
             File.WriteAllText(Directory.GetCurrentDirectory() + "/package.json", json);
-            ZipFile.CreateFromDirectory(Directory.GetCurrentDirectory(), Directory.GetCurrentDirectory() + "/" + projectName + ".zip");
+            try
+            {
+                ZipFile.CreateFromDirectory(Directory.GetCurrentDirectory(), Directory.GetCurrentDirectory() + "/" + projectName + ".zip");
+            }
+            catch
+            {
+
+            }
+            Console.WriteLine("Package created!");
             
         }
 
