@@ -6,6 +6,8 @@ using System.CodeDom.Compiler;
 using System.Diagnostics;
 using Microsoft.CSharp;
 using System.Collections;
+using System.Configuration;
+using System.Collections.Specialized;
 using System.Collections.Generic;
 namespace rpm
 {
@@ -34,7 +36,7 @@ namespace rpm
 
         public static void Main(string[] args)
         {
-
+            currentLang = ConfigurationManager.AppSettings.Get("language");
             //Packagetools are experimental, so hands off.
             //packagetools.Setup setup = new packagetools.Setup("Byte");
             //setup.Run();
@@ -93,6 +95,31 @@ namespace rpm
                 else
                 {
                     Console.WriteLine(languages[currentLang].phrases["notinstalled"].phrase(new string[0]));
+                }
+
+            }
+            else if (args.Length == 2 && args[0] == "language")
+            {
+                if (args[1] == "-l")
+                {
+                    foreach(string lang in languages.Keys)
+                    {
+                        Console.WriteLine(lang);
+                    }
+                    return;
+                }
+
+                if (languages.ContainsKey(args[1]))
+                {
+                    Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                    config.AppSettings.Settings["language"].Value = args[1];
+                    config.Save(ConfigurationSaveMode.Modified);
+                    ConfigurationManager.RefreshSection(config.AppSettings.SectionInformation.Name);
+                    Console.WriteLine(languages[currentLang].phrases["langchange"].phrase(new string[] { args[1] }));
+                }
+                else
+                {
+                    Console.WriteLine(languages[currentLang].phrases["nolang"].phrase(new string[] { args[1] }));
                 }
 
             }
@@ -210,6 +237,15 @@ namespace rpm
                 return text;
             }
             return text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
+        }
+
+        public static void SetSetting(string key, string value)
+        {
+            Configuration configuration =
+                ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            configuration.AppSettings.Settings[key].Value = value;
+            configuration.Save(ConfigurationSaveMode.Full, true);
+            ConfigurationManager.RefreshSection("appSettings");
         }
     }
 }
