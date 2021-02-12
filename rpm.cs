@@ -45,6 +45,11 @@ namespace rpm
             //Console.WriteLine(JsonConvert.SerializeObject(pack));
             if (!Directory.Exists(Directory.GetCurrentDirectory() + "/packages/"))
                 Directory.CreateDirectory(Directory.GetCurrentDirectory() + "/packages/");
+            if (!File.Exists("languages.json"))
+            {
+                WebClient client = new WebClient();
+                client.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/master/languages.json", Directory.GetCurrentDirectory() + "/languages.json");
+            }
 
             if (args.Length == 2 && args[0] == "get")
             {
