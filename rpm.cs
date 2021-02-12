@@ -17,7 +17,7 @@ namespace rpm
         static string branch = "master";
         static string verison = "2";
         static string currentLang = "";
-        static Dictionary<string, Language> languages = JsonConvert.DeserializeObject<Dictionary<string, Language>>(File.ReadAllText(Directory.GetCurrentDirectory() + "/languages.json"));
+        static Dictionary<string, Language> languages;
 
         public static bool IsValid(string url)
         {
@@ -50,7 +50,7 @@ namespace rpm
                 WebClient client = new WebClient();
                 client.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/master/languages.json", Directory.GetCurrentDirectory() + "/languages.json");
             }
-
+            languages = JsonConvert.DeserializeObject<Dictionary<string, Language>>(File.ReadAllText(Directory.GetCurrentDirectory() + "/languages.json"));
             if (args.Length == 2 && args[0] == "get")
             {
                 string packageName = args[1];
