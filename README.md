@@ -1,20 +1,19 @@
 # This info has been moved! You can still acess this, but it will not get the same stream of updates. New docs at [https://rectsrc.github.io/rpm/docs/](https://rectsrc.github.io/rpm/docs/)
 # rpm
-rect package manager
+rpm is a package manager for a programming language called ReCT, wich allows for downloading of packages and it also allows more people to discover packages, previously it could be done on the official ReCT discord, but is now on the rpm website.
 ## Installation
 * Download the latest relase
-* Extract the files into your ReCT ide folder, the one containing rect-ide.exe
+* Extract the files into your ReCT ide folder, the one containing *ReCT IDE.exe*
 * Open cmd and navigate to the folder you extracted the files to
 * Run rpm to check if it works
 * Enjoy!
-## Is get not working?
-A good test is to do 
-```cmd
-rpm get test
-```
-That will then return a test.dll, and it should contain some text.
 ## Submitting package to rpm
-To submit your package, it can only be a .dll or .zip, then you fill in [this form](https://forms.gle/1HpLd7vfnogb3J388), it will ask you to upload
-## Adding dependicies
-To add dependicies, add a folder called *projectname*-DEPS, replace *projectname* with the package name to put your deps in. Then outside of that folder add deps.dps.
-Then in deps.dps, list each file used, split with new lines.
+rpm packages has a strict way of creating packages, rooting from the package.json, wich is a simple json file that contains all of the packages info. An example package.json is
+```json
+{"packageVerison":"2","dependencies":["package.dll"]}
+```
+wich describes the latest verison of the package, wich at writing moment is 2, find the package verison at the releases page.
+And the dependencies. If you are familliar with json, this should be easy enough for you. The packageverison is what tells the client what version of rpm it is made for, and the dependencies is a list of all the deps needed for the package, including the main dll. All paths are relative, and package verison is case sensitive.
+Then send all of the files into a .zip, and then submit it to [this form](https://forms.gle/gi1LFZrCmXn5aeFK8).
+## Commands
+There are a few commands, all of them are described in the program, and on the official docs, so i will not say them here for now.
