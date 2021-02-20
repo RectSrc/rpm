@@ -7,6 +7,7 @@ using System.Diagnostics;
 using Microsoft.CSharp;
 using System.Collections;
 using System.Configuration;
+using System.IO.Compression;
 using System.Collections.Specialized;
 using System.Collections.Generic;
 namespace rpm
@@ -131,6 +132,30 @@ namespace rpm
             else if (args.Length == 2 && args[0] == "update")
             {
                 UpdatePackage(args[1]);
+            }
+            else if (args.Length == 1 && args[0] == "create")
+            {
+                Console.Write(languages[currentLang].phrases["packagestore"].phrase(new string[0]));
+                string packageLocation = Console.ReadLine();
+                Console.Write(languages[currentLang].phrases["packagename"].phrase(new string[0]));
+                string packageName = Console.ReadLine();
+                string[] contents = Directory.GetFiles(packageLocation, "*.*", SearchOption.AllDirectories);
+                for (int i = 0; i < contents.Length; i++)
+                {
+                    contents[i] = contents[i].Replace(packageLocation, "");
+                    contents[i] = contents[i].Replace("\\", "/").Remove(0, 1);
+                }
+                Package package = new Package(verison, contents);
+                File.WriteAllText(packageLocation + "/package.json", JsonConvert.SerializeObject(package));
+                /*File.Create(packageLocation + "/" + packageName + ".zip").Close();
+                ZipArchive zip = ZipFile.Open(packageLocation + "/" + packageName + ".zip", ZipArchiveMode.Create);
+                for (int i = 0; i < contents.Length; i++)
+                {
+                    zip.CreateEntryFromFile(packageLocation + contents[i], contents[i]);
+                }
+                */
+                Console.WriteLine(languages[currentLang].phrases["packagedone"].phrase(new string[0]));
+
             }
             else
             {
