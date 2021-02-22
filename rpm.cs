@@ -7,9 +7,9 @@ using System.Diagnostics;
 using Microsoft.CSharp;
 using System.Collections;
 using System.Configuration;
-using System.IO.Compression;
 using System.Collections.Specialized;
 using System.Collections.Generic;
+using nocompress;
 namespace rpm
 {
     public static class rpm
@@ -147,6 +147,7 @@ namespace rpm
                 }
                 Package package = new Package(verison, contents);
                 File.WriteAllText(packageLocation + "/package.json", JsonConvert.SerializeObject(package));
+                Converter.Compress(packageLocation, contents, packageLocation + "/" + packageName + ".pack");
                 /*File.Create(packageLocation + "/" + packageName + ".zip").Close();
                 ZipArchive zip = ZipFile.Open(packageLocation + "/" + packageName + ".zip", ZipArchiveMode.Create);
                 for (int i = 0; i < contents.Length; i++)
