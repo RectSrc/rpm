@@ -20,14 +20,23 @@
                 "rootphrase":"Package not installed!"
             },
             "info":{
-                "rootphrase":"ReCT Package Manager(rpm)\nMade by the RectSrc team\nCommands:\nget [packagename]    -Gets the package called [packagename]\nremove [packagename]    -Removes the package called [packagename]\nupdate [packagename]    -Updates the package called [packagename]\nlanguage [lang]    -Sets the language to [lang]"
+                "rootphrase":"ReCT Package Manager(rpm)\nMade by the RectSrc team\nCommands:\nget [packagename]    -Gets the package called [packagename]\nremove [packagename]    -Removes the package called [packagename]\nupdate [packagename]    -Updates the package called [packagename]\nlanguage [lang]    -Sets the language to [lang]\ncreate    -create a package wizard"
             },
 	    "langchange":{
                 "rootphrase":"Language changed to {val0}"
             },
 	    "nolang":{
                 "rootphrase":"Language {val0} not found"
-            }
+            },
+	    "packagestore":{
+		"rootphrase":"Where is the package stored? "
+	    },
+	    "packagename":{
+		"rootphrase":"What is your package called? "
+	    },
+	    "packagedone":{
+		"rootphrase":"Done! Zip the directory and submit!"
+	    }
         }
     },
     "swe":{
@@ -51,14 +60,23 @@
                 "rootphrase":"Packet inte installerat!"
             },
             "info":{
-                "rootphrase":"ReCTpaketshanteraren(rpm)\nSkapad av RectSrc teamet\nKommandon:\nget [paket]    -Laddar ner paketet [paket]\nremove [paket]    -Tar bort paketet [paket]\nupdate [paket]    -Uppdaterar paketet [paket]\nlanguage [språk]    -Sätter språket till [språk]"
+                "rootphrase":"ReCTpaketshanteraren(rpm)\nSkapad av RectSrc teamet\nKommandon:\nget [paket]    -Laddar ner paketet [paket]\nremove [paket]    -Tar bort paketet [paket]\nupdate [paket]    -Uppdaterar paketet [paket]\nlanguage [språk]    -Sätter språket till [språk]\ncreate    -Skapar ett paket"
             },
 	    "langchange":{
                 "rootphrase":"Språket ändrades till {val0}"
             },
 	    "nolang":{
                 "rootphrase":"Språket {val0} hittades inte"
-            }
+            },
+	    "packagestore":{
+		"rootphrase":"Vart finns paketet? "
+	    },
+	    "packagename":{
+		"rootphrase":"Vad kallas paketet? "
+	    },
+	    "packagedone":{
+		"rootphrase":"Klart! Zippa mappen och skicka in!"
+	    }
         }
     },
 }
