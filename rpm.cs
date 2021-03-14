@@ -19,7 +19,6 @@ namespace rpm
         static string verison = "2";
         static string currentLang = "";
         static Dictionary<string, Language> languages;
-
         public static bool IsValid(string url)
         {
             WebRequest webRequest = WebRequest.Create(url);
@@ -68,6 +67,13 @@ namespace rpm
                             client.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/" + dep, Directory.GetCurrentDirectory() + "/packages/" + dep);
                         }
                         client.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json", Directory.GetCurrentDirectory() + "/packages/" + packageName + ".json");
+                    }
+                    else if (package.packageVerison == "singleFile")
+                    {
+                        client.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/" + packageName + ".pack", Directory.GetCurrentDirectory() + "/packages/tpmFile.pack");
+                        Converter.Decompress(Directory.GetCurrentDirectory() + "/packages/tpmFile.pack", Directory.GetCurrentDirectory() + "/packages/");
+                        client.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json", Directory.GetCurrentDirectory() + "/packages/" + packageName + ".json");
+                        File.Delete(Directory.GetCurrentDirectory() + "/packages/tpmFile.pack");
                     }
                     else
                     {
