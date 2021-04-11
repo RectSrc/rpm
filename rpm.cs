@@ -68,7 +68,7 @@ namespace rpm
                         }
                         client.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json", Directory.GetCurrentDirectory() + "/packages/" + packageName + ".json");
                     }
-                    else if (package.packageVerison == "singleFile")
+                    else if (package.packageVerison == "3")
                     {
                         client.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/" + packageName + ".pack", Directory.GetCurrentDirectory() + "/packages/tpmFile.pack");
                         Converter.Decompress(Directory.GetCurrentDirectory() + "/packages/tpmFile.pack", Directory.GetCurrentDirectory() + "/packages/");
