@@ -70,12 +70,12 @@ namespace rpm
                     }
                     else if (package.packageVerison == "3")
                     {
-                        Console.WriteLine(Language.GetPhrase("downloadv2"));
+                        Console.WriteLine(Language.GetPhrase("downloadv2").phrase(new string[0] { }));
                         client.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/" + packageName + ".pack", Directory.GetCurrentDirectory() + "/packages/tpmFile.pack");
-                        Console.WriteLine(Language.GetPhrase("unpack"));
+                        Console.WriteLine(Language.GetPhrase("unpack").phrase(new string[0] { }));
                         Converter.Decompress(Directory.GetCurrentDirectory() + "/packages/tpmFile.pack", Directory.GetCurrentDirectory() + "/packages/");
                         client.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json", Directory.GetCurrentDirectory() + "/packages/" + packageName + ".json");
-                        Console.WriteLine(Language.GetPhrase("cleaning"));
+                        Console.WriteLine(Language.GetPhrase("cleaning").phrase(new string[0] { }));
                         File.Delete(Directory.GetCurrentDirectory() + "/packages/tpmFile.pack");
                     }
                     else
