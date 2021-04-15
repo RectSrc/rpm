@@ -20,4 +20,9 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Languages\" />
+    <Folder Include="Resources\" />
+  </ItemGroup>
+
 </Project>
