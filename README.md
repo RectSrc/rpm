@@ -1,5 +1,4 @@
 # This info has been moved! You can still acess this, but it will not get the same stream of updates. New docs at [https://rectsrc.github.io/rpm/docs/](https://rectsrc.github.io/rpm/docs/)
-![GitHub release (latest by date)](https://img.shields.io/github/downloads/RectSrc/rpm/latest/total)
 # rpm
 rpm is a package manager for a programming language called ReCT, wich allows for downloading of packages and it also allows more people to discover packages, previously it could be done on the official ReCT discord, but is now on the rpm website.
 ## Installation
