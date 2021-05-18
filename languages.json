@@ -78,14 +78,14 @@
                 "rootphrase":"Språket {val0} hittades inte"
             },
 	    "packagestore":{
-		"rootphrase":"Vart finns paketet? "
+		            "rootphrase":"Vart finns paketet? "
 	    },
 	    "packagename":{
-		"rootphrase":"Vad kallas paketet? "
+		            "rootphrase":"Vad kallas paketet? "
 	    },
 	    "packagedone":{
-		"rootphrase":"Klart! Zippa mappen och skicka in!"
+		            "rootphrase":"Klart! Zippa mappen och skicka in!"
 	    }
         }
-    },
+    }
 }

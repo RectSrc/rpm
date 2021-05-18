@@ -14,9 +14,7 @@ namespace rpm
 {
     public static class rpm
     {
-
-        static string branch = "master";
-        static string verison = "2";
+        static string verison = "3";
         static string currentLang = "";
         static Dictionary<string, Language> languages;
         static bool isCli = true;
@@ -74,49 +72,35 @@ namespace rpm
             {
                 string packageName = args[1];
                 WebClient client = new WebClient();
-                if (IsValid("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json") && !File.Exists(Directory.GetCurrentDirectory() + "/packages/" + packageName + ".json"))
+                string baseUrl = "http://rectpm.tk/packages/dl/";
+                if (isCli)
+                    Console.WriteLine(Language.GetPhrase("downloadv2").rootphrase);
+                string packageData = client.DownloadString(baseUrl + packageName);
+                if (!packageData.StartsWith("{"))
                 {
-                    string packageInfo = client.DownloadString("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json");
-                    Package package = JsonConvert.DeserializeObject<Package>(packageInfo);
-                    if (package.packageVerison == verison)
-                    {
-                        foreach (string dep in package.dependencies)
-                        {
-                            Console.WriteLine(Language.GetPhrase("download").phrase(new string[] { dep, Directory.GetCurrentDirectory() + dep }));
-                            client.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/" + dep, Directory.GetCurrentDirectory() + "/packages/" + dep);
-                        }
-                        client.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json", Directory.GetCurrentDirectory() + "/packages/" + packageName + ".json");
-                    }
-                    else if (package.packageVerison == "3")
-                    {
-                        if(isCli)
-                            Console.WriteLine(Language.GetPhrase("downloadv2").phrase(new string[0] { }));
-                        client.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/" + packageName + ".pack", Directory.GetCurrentDirectory() + "/packages/tpmFile.pack");
-                        if (isCli)
-                            Console.WriteLine(Language.GetPhrase("unpack").phrase(new string[0] { }));
-                        Converter.Decompress(Directory.GetCurrentDirectory() + "/packages/tpmFile.pack", Directory.GetCurrentDirectory() + "/packages/");
-                        client.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json", Directory.GetCurrentDirectory() + "/packages/" + packageName + ".json");
-                        if (isCli)
-                            Console.WriteLine(Language.GetPhrase("cleaning").phrase(new string[0] { }));
-                        File.Delete(Directory.GetCurrentDirectory() + "/packages/tpmFile.pack");
-                    }
-                    else
-                    {
-                        if (isCli)
-                            Console.WriteLine(Language.GetPhrase("outdated").phrase(new string[0]));
-                        if (isCli)
-                            Console.WriteLine(Language.GetPhrase("outdatedinfo").phrase(new string[] { package.packageVerison, verison }));
-                    }
+                    if (isCli)
+                        Console.WriteLine(Language.GetPhrase("notfound").phrase(new string[] { packageName }));
+                    return;
+                }
+                File.WriteAllText(Directory.GetCurrentDirectory() + "/packages/temppack.pack", packageData);
+                if (isCli)
+                    Console.WriteLine(Language.GetPhrase("unpack").rootphrase);
+                Converter.Decompress(Directory.GetCurrentDirectory() + "/packages/temppack.pack", Directory.GetCurrentDirectory() + "/packages/temp/");
 
-                    
-                }
-                else
+                //Create package.json
+                string[] contents = Directory.GetFiles(Directory.GetCurrentDirectory() + "/packages/temp/", "*.*", SearchOption.AllDirectories);
+                for (int i = 0; i < contents.Length; i++)
                 {
-                    if (!IsValid("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json") && isCli)
-                            Console.WriteLine(Language.GetPhrase("notfound").phrase(new string[] { packageName }));
-                    else if (isCli)
-                            Console.WriteLine(Language.GetPhrase("update").phrase(new string[] { packageName, packageName }));
+                    contents[i] = contents[i].Replace(Directory.GetCurrentDirectory() + "/packages/temp/", "");
                 }
+                Package package = new Package(verison, contents);
+                File.WriteAllText(Directory.GetCurrentDirectory() + "/packages/" + packageName + ".json", JsonConvert.SerializeObject(package));
+                if (isCli)
+                    Console.WriteLine(Language.GetPhrase("cleaning").rootphrase);
+                CopyFilesRecursively(Directory.GetCurrentDirectory() + "/packages/temp/", Directory.GetCurrentDirectory() + "/packages/");
+                File.Delete(Directory.GetCurrentDirectory() + "/packages/temppack.pack");
+                Directory.Delete(Directory.GetCurrentDirectory() + "/packages/temp/", true);
+
             }
             else if (args.Length == 2 && args[0] == "remove")
             {
@@ -142,7 +126,7 @@ namespace rpm
             {
                 if (args[1] == "-l")
                 {
-                    foreach(string lang in languages.Keys)
+                    foreach (string lang in languages.Keys)
                     {
                         if (isCli)
                             Console.WriteLine(lang);
@@ -210,45 +194,54 @@ namespace rpm
                 Console.WriteLine("update [packagename]    -Updates the package called [packagename]");*/
             }
         }
+        private static void CopyFilesRecursively(string sourcePath, string targetPath)
+        {
+            //Now Create all of the directories
+            foreach (string dirPath in Directory.GetDirectories(sourcePath, "*", SearchOption.AllDirectories))
+            {
+                Directory.CreateDirectory(dirPath.Replace(sourcePath, targetPath));
+            }
 
+            //Copy all the files & Replaces any files with the same name
+            foreach (string newPath in Directory.GetFiles(sourcePath, "*.*", SearchOption.AllDirectories))
+            {
+                File.Copy(newPath, newPath.Replace(sourcePath, targetPath), true);
+            }
+        }
         static void UpdatePackage(string packageName)
         {
             if (File.Exists(Directory.GetCurrentDirectory() + "/packages/" + packageName + ".json"))
             {
-                string packageInfo = File.ReadAllText(Directory.GetCurrentDirectory() + "/packages/" + packageName + ".json");
-                Package package = JsonConvert.DeserializeObject<Package>(packageInfo);
-                foreach (string dep in package.dependencies)
-                {
-                    File.Delete(dep);
-                }
+                Remove(packageName);
                 WebClient client = new WebClient();
-                if (IsValid("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json") && !File.Exists(Directory.GetCurrentDirectory() + "/packages/" + packageName + ".json"))
+                string baseUrl = "http://rectpm.tk/packages/dl/";
+                if (isCli)
+                    Console.WriteLine(Language.GetPhrase("downloadv2").rootphrase);
+                string packageData = client.DownloadString(baseUrl + packageName);
+                if (!packageData.StartsWith("{"))
                 {
-                    string packageInfoForDownload = client.DownloadString("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json");
-                    Package packageUpdate = JsonConvert.DeserializeObject<Package>(packageInfoForDownload);
-                    if (packageUpdate.packageVerison == verison)
-                    {
-                        foreach (string dep in packageUpdate.dependencies)
-                        {
-                            client.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/" + dep, Directory.GetCurrentDirectory() + "/packages/" + dep);
-                        }
-                        client.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json", Directory.GetCurrentDirectory() + "/packages/" + packageName + ".json");
-                    }
-                    else
-                    {
-                        if (isCli)
-                            Console.WriteLine(Language.GetPhrase("outdated").phrase(new string[0]));
-                        if (isCli)
-                            Console.WriteLine(Language.GetPhrase("outdatedinfo").phrase(new string[] { packageUpdate.packageVerison, verison }));
-                    }
-
-                    
-                }
-                else
-                {
-                    if (!IsValid("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json") && isCli)
+                    if (isCli)
                         Console.WriteLine(Language.GetPhrase("notfound").phrase(new string[] { packageName }));
+                    return;
                 }
+                File.WriteAllText(Directory.GetCurrentDirectory() + "/packages/temppack.pack", packageData);
+                if (isCli)
+                    Console.WriteLine(Language.GetPhrase("unpack").rootphrase);
+                Converter.Decompress(Directory.GetCurrentDirectory() + "/packages/temppack.pack", Directory.GetCurrentDirectory() + "/packages/temp/");
+
+                //Create package.json
+                string[] contents = Directory.GetFiles(Directory.GetCurrentDirectory() + "/packages/temp/", "*.*", SearchOption.AllDirectories);
+                for (int i = 0; i < contents.Length; i++)
+                {
+                    contents[i] = contents[i].Replace(Directory.GetCurrentDirectory() + "/packages/temp/", "");
+                }
+                Package package = new Package(verison, contents);
+                File.WriteAllText(Directory.GetCurrentDirectory() + "/packages/" + packageName + ".json", JsonConvert.SerializeObject(package));
+                if (isCli)
+                    Console.WriteLine(Language.GetPhrase("cleaning").rootphrase);
+                CopyFilesRecursively(Directory.GetCurrentDirectory() + "/packages/temp/", Directory.GetCurrentDirectory() + "/packages/");
+                File.Delete(Directory.GetCurrentDirectory() + "/packages/temppack.pack");
+                Directory.Delete(Directory.GetCurrentDirectory() + "/packages/temp/", true);
             }
             else
             {
