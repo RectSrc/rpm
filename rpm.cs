@@ -19,6 +19,7 @@ namespace rpm
         static string verison = "2";
         static string currentLang = "";
         static Dictionary<string, Language> languages;
+        static bool isCli = true;
         public static bool IsValid(string url)
         {
             WebRequest webRequest = WebRequest.Create(url);
@@ -34,9 +35,26 @@ namespace rpm
             return true;
         }
 
-        public static void Main(string[] args)
+
+        public static void Download(string package)
         {
-            currentLang = ConfigurationManager.AppSettings.Get("language");
+            Main(new string[] { "get", package });
+        }
+
+        public static void Update(string package)
+        {
+            Main(new string[] { "update", package });
+        }
+
+        public static void Remove(string package)
+        {
+            Main(new string[] { "remove", package });
+        }
+
+        static void Main(string[] args)
+        {
+            if (isCli)
+                currentLang = ConfigurationManager.AppSettings.Get("language");
             //Packagetools are experimental, so hands off.
             //packagetools.Setup setup = new packagetools.Setup("Byte");
             //setup.Run();
@@ -45,12 +63,13 @@ namespace rpm
             //Console.WriteLine(JsonConvert.SerializeObject(pack));
             if (!Directory.Exists(Directory.GetCurrentDirectory() + "/packages/"))
                 Directory.CreateDirectory(Directory.GetCurrentDirectory() + "/packages/");
-            if (!File.Exists("languages.json"))
+            if (!File.Exists("languages.json") && isCli)
             {
                 WebClient client = new WebClient();
                 client.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/master/languages.json", Directory.GetCurrentDirectory() + "/languages.json");
             }
-            languages = JsonConvert.DeserializeObject<Dictionary<string, Language>>(File.ReadAllText(Directory.GetCurrentDirectory() + "/languages.json"));
+            if (isCli)
+                languages = JsonConvert.DeserializeObject<Dictionary<string, Language>>(File.ReadAllText(Directory.GetCurrentDirectory() + "/languages.json"));
             if (args.Length == 2 && args[0] == "get")
             {
                 string packageName = args[1];
@@ -70,28 +89,33 @@ namespace rpm
                     }
                     else if (package.packageVerison == "3")
                     {
-                        Console.WriteLine(Language.GetPhrase("downloadv2").phrase(new string[0] { }));
+                        if(isCli)
+                            Console.WriteLine(Language.GetPhrase("downloadv2").phrase(new string[0] { }));
                         client.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/" + packageName + ".pack", Directory.GetCurrentDirectory() + "/packages/tpmFile.pack");
-                        Console.WriteLine(Language.GetPhrase("unpack").phrase(new string[0] { }));
+                        if (isCli)
+                            Console.WriteLine(Language.GetPhrase("unpack").phrase(new string[0] { }));
                         Converter.Decompress(Directory.GetCurrentDirectory() + "/packages/tpmFile.pack", Directory.GetCurrentDirectory() + "/packages/");
                         client.DownloadFile("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json", Directory.GetCurrentDirectory() + "/packages/" + packageName + ".json");
-                        Console.WriteLine(Language.GetPhrase("cleaning").phrase(new string[0] { }));
+                        if (isCli)
+                            Console.WriteLine(Language.GetPhrase("cleaning").phrase(new string[0] { }));
                         File.Delete(Directory.GetCurrentDirectory() + "/packages/tpmFile.pack");
                     }
                     else
                     {
-                        Console.WriteLine(Language.GetPhrase("outdated").phrase(new string[0]));
-                        Console.WriteLine(Language.GetPhrase("outdatedinfo").phrase(new string[] { package.packageVerison, verison }));
+                        if (isCli)
+                            Console.WriteLine(Language.GetPhrase("outdated").phrase(new string[0]));
+                        if (isCli)
+                            Console.WriteLine(Language.GetPhrase("outdatedinfo").phrase(new string[] { package.packageVerison, verison }));
                     }
 
                     
                 }
                 else
                 {
-                    if (!IsValid("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json"))
-                        Console.WriteLine(Language.GetPhrase("notfound").phrase(new string[] { packageName }));
-                    else
-                        Console.WriteLine(Language.GetPhrase("update").phrase(new string[] { packageName, packageName }));
+                    if (!IsValid("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json") && isCli)
+                            Console.WriteLine(Language.GetPhrase("notfound").phrase(new string[] { packageName }));
+                    else if (isCli)
+                            Console.WriteLine(Language.GetPhrase("update").phrase(new string[] { packageName, packageName }));
                 }
             }
             else if (args.Length == 2 && args[0] == "remove")
@@ -109,7 +133,8 @@ namespace rpm
                 }
                 else
                 {
-                    Console.WriteLine(Language.GetPhrase("notinstalled").phrase(new string[0]));
+                    if (isCli)
+                        Console.WriteLine(Language.GetPhrase("notinstalled").phrase(new string[0]));
                 }
 
             }
@@ -119,7 +144,8 @@ namespace rpm
                 {
                     foreach(string lang in languages.Keys)
                     {
-                        Console.WriteLine(lang);
+                        if (isCli)
+                            Console.WriteLine(lang);
                     }
                     return;
                 }
@@ -130,11 +156,13 @@ namespace rpm
                     config.AppSettings.Settings["language"].Value = args[1];
                     config.Save(ConfigurationSaveMode.Modified);
                     ConfigurationManager.RefreshSection(config.AppSettings.SectionInformation.Name);
-                    Console.WriteLine(Language.GetPhrase("langchange").phrase(new string[] { args[1] }));
+                    if (isCli)
+                        Console.WriteLine(Language.GetPhrase("langchange").phrase(new string[] { args[1] }));
                 }
                 else
                 {
-                    Console.WriteLine(Language.GetPhrase("nolang").phrase(new string[] { args[1] }));
+                    if (isCli)
+                        Console.WriteLine(Language.GetPhrase("nolang").phrase(new string[] { args[1] }));
                 }
 
             }
@@ -144,9 +172,11 @@ namespace rpm
             }
             else if (args.Length == 1 && args[0] == "create")
             {
-                Console.Write(Language.GetPhrase("packagestore").phrase(new string[0]));
+                if (isCli)
+                    Console.Write(Language.GetPhrase("packagestore").phrase(new string[0]));
                 string packageLocation = Console.ReadLine();
-                Console.Write(Language.GetPhrase("packagename").phrase(new string[0]));
+                if (isCli)
+                    Console.Write(Language.GetPhrase("packagename").phrase(new string[0]));
                 string packageName = Console.ReadLine();
                 string[] contents = Directory.GetFiles(packageLocation, "*.*", SearchOption.AllDirectories);
                 for (int i = 0; i < contents.Length; i++)
@@ -164,12 +194,14 @@ namespace rpm
                     zip.CreateEntryFromFile(packageLocation + contents[i], contents[i]);
                 }
                 */
-                Console.WriteLine(Language.GetPhrase("packagedone").phrase(new string[0]));
+                if (isCli)
+                    Console.WriteLine(Language.GetPhrase("packagedone").phrase(new string[0]));
 
             }
             else
             {
-                Console.WriteLine(Language.GetPhrase("info").phrase(new string[0]));
+                if (isCli)
+                    Console.WriteLine(Language.GetPhrase("info").phrase(new string[0]));
                 /*Console.WriteLine("ReCT Package Manager(rpm)");
                 Console.WriteLine("Made by the RectSrc team");
                 Console.WriteLine("Commands:");
@@ -204,21 +236,24 @@ namespace rpm
                     }
                     else
                     {
-                        Console.WriteLine(Language.GetPhrase("outdated").phrase(new string[0]));
-                        Console.WriteLine(Language.GetPhrase("outdatedinfo").phrase(new string[] { packageUpdate.packageVerison, verison }));
+                        if (isCli)
+                            Console.WriteLine(Language.GetPhrase("outdated").phrase(new string[0]));
+                        if (isCli)
+                            Console.WriteLine(Language.GetPhrase("outdatedinfo").phrase(new string[] { packageUpdate.packageVerison, verison }));
                     }
 
                     
                 }
                 else
                 {
-                    if (!IsValid("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json"))
+                    if (!IsValid("https://raw.githubusercontent.com/RectSrc/rpm/" + branch + "/packages/" + packageName + "/package.json") && isCli)
                         Console.WriteLine(Language.GetPhrase("notfound").phrase(new string[] { packageName }));
                 }
             }
             else
             {
-                Console.WriteLine(Language.GetPhrase("notinstalled").phrase(new string[0]));
+                if (isCli)
+                    Console.WriteLine(Language.GetPhrase("notinstalled").phrase(new string[0]));
             }
         }
 
@@ -296,5 +331,10 @@ namespace rpm
             configuration.Save(ConfigurationSaveMode.Full, true);
             ConfigurationManager.RefreshSection("appSettings");
         }
+    }
+
+    public enum CommandCode
+    {
+        Sucess = 0
     }
 }

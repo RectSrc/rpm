@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <StartupObject>rpm.rpm</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,7 +17,7 @@
       <HintPath>..\rpm package maker\bin\Debug\netcoreapp3.1\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="nocompress">
-      <HintPath>..\nocompress\bin\Debug\netcoreapp3.1\nocompress.dll</HintPath>
+      <HintPath>\nocompress.dll</HintPath>
     </Reference>
   </ItemGroup>
 
