@@ -186,7 +186,7 @@ namespace rpm
             else
             {
                 if (isCli)
-                    Console.WriteLine(Language.GetPhrase("info").phrase(new string[0]));
+                    Console.WriteLine(Language.GetPhrase("info").phrase(new string[] { programVerison }));
                 /*Console.WriteLine("ReCT Package Manager(rpm)");
                 Console.WriteLine("Made by the RectSrc team");
                 Console.WriteLine("Commands:");
@@ -247,7 +247,7 @@ namespace rpm
             else
             {
                 if (isCli)
-                    Console.WriteLine(Language.GetPhrase("notinstalled").phrase(new string[] { programVerison }));
+                    Console.WriteLine(Language.GetPhrase("notinstalled").phrase(new string[0]));
             }
         }
 
