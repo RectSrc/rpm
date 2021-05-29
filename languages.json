@@ -20,7 +20,7 @@
           "rootphrase": "Package not installed!"
         },
         "info": {
-          "rootphrase": "ReCT Package Manager(rpm)\nMade by the RectSrc team\nCommands:\nget [packagename]    -Gets the package called [packagename]\nremove [packagename]    -Removes the package called [packagename]\nupdate [packagename]    -Updates the package called [packagename]\nlanguage [lang]    -Sets the language to [lang]\ncreate    -create a package wizard"
+          "rootphrase": "ReCT Package Manager(rpm) v.{val0}\nMade by the RectSrc team\nCommands:\nget [packagename]    -Gets the package called [packagename]\nremove [packagename]    -Removes the package called [packagename]\nupdate [packagename]    -Updates the package called [packagename]\nlanguage [lang]    -Sets the language to [lang]\ncreate    -create a package wizard"
         },
         "langchange": {
           "rootphrase": "Language changed to {val0}"
@@ -69,7 +69,7 @@
                 "rootphrase":"Packet inte installerat!"
             },
             "info":{
-                "rootphrase":"ReCTpaketshanteraren(rpm)\nSkapad av RectSrc teamet\nKommandon:\nget [paket]    -Laddar ner paketet [paket]\nremove [paket]    -Tar bort paketet [paket]\nupdate [paket]    -Uppdaterar paketet [paket]\nlanguage [språk]    -Sätter språket till [språk]\ncreate    -Skapar ett paket"
+                "rootphrase":"ReCTpaketshanteraren(rpm) v.{val0} \nSkapad av RectSrc teamet\nKommandon:\nget [paket]    -Laddar ner paketet [paket]\nremove [paket]    -Tar bort paketet [paket]\nupdate [paket]    -Uppdaterar paketet [paket]\nlanguage [språk]    -Sätter språket till [språk]\ncreate    -Skapar ett paket"
             },
 	    "langchange":{
                 "rootphrase":"Språket ändrades till {val0}"

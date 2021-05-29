@@ -15,6 +15,7 @@ namespace rpm
     public static class rpm
     {
         static string verison = "3";
+        static string programVerison = "2.3.0";
         static string currentLang = "";
         static Dictionary<string, Language> languages;
         static bool isCli = true;
@@ -246,7 +247,7 @@ namespace rpm
             else
             {
                 if (isCli)
-                    Console.WriteLine(Language.GetPhrase("notinstalled").phrase(new string[0]));
+                    Console.WriteLine(Language.GetPhrase("notinstalled").phrase(new string[] { programVerison }));
             }
         }
 
