@@ -50,6 +50,13 @@ namespace rpm
             Main(new string[] { "remove", package });
         }
 
+        public static string[] List()
+        {
+            WebClient webClient = new WebClient();
+            string url = "http://rectpm.tk/packageList/";
+            return webClient.DownloadString(url).Split("\\b\\");
+        }
+
         static void Main(string[] args)
         {
             if (isCli)
@@ -182,6 +189,15 @@ namespace rpm
                 if (isCli)
                     Console.WriteLine(Language.GetPhrase("packagedone").phrase(new string[0]));
 
+            }
+            else if (args.Length == 1 && args[0] == "list")
+            {
+                string[] packages = List();
+                Console.WriteLine(Language.GetPhrase("packagelisttitle").phrase(new string[0]));
+                for (int i = 0; i < packages.Length; i++)
+                {
+                    Console.WriteLine(" " + packages[i]);
+                }
             }
             else
             {

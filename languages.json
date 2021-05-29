@@ -45,6 +45,9 @@
         },
         "cleaning": {
           "rootPhrase": "Cleaning up..."
+        },
+        "packagelisttitle": {
+          "rootPhrase":  "Packages:"
         }
       }
     },
