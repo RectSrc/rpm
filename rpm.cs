@@ -15,7 +15,7 @@ namespace rpm
     public static class rpm
     {
         static string verison = "3";
-        static string programVerison = "2.3.0";
+        static string programVerison = "2.4.0";
         static string currentLang = "";
         static Dictionary<string, Language> languages;
         static bool isCli = true;
