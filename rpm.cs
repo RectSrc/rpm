@@ -9,6 +9,7 @@ using System.Collections;
 using System.Configuration;
 using System.Collections.Specialized;
 using System.Collections.Generic;
+using System.Net.Http;
 using nocompress;
 namespace rpm
 {
@@ -59,6 +60,7 @@ namespace rpm
 
         static void Main(string[] args)
         {
+            Directory.SetCurrentDirectory(Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location));
             if (isCli)
                 currentLang = ConfigurationManager.AppSettings.Get("language");
             //Packagetools are experimental, so hands off.
@@ -186,8 +188,9 @@ namespace rpm
                     zip.CreateEntryFromFile(packageLocation + contents[i], contents[i]);
                 }
                 */
-                if (isCli)
-                    Console.WriteLine(Language.GetPhrase("packagedone").phrase(new string[0]));
+                //if (isCli)
+                //Console.WriteLine(Language.GetPhrase("packagedone").phrase(new string[0]));
+                Upload(packageLocation + "/" + packageName + ".pack");
 
             }
             else if (args.Length == 1 && args[0] == "list")
@@ -210,6 +213,34 @@ namespace rpm
                 Console.WriteLine("remove [packagename]    -Removes the package called [packagename]");
                 Console.WriteLine("update [packagename]    -Updates the package called [packagename]");*/
             }
+        }
+
+        private static async void Upload(string location)
+        {
+            Console.Write("Description: ");
+            string description = Console.ReadLine();
+            Console.Write("Username: ");
+            string username = Console.ReadLine();
+            Console.Write("Password: ");
+            string pass = Console.ReadLine();
+            string data = File.ReadAllText(location);
+            string name = Path.GetFileNameWithoutExtension(location);
+            HttpClient client = new HttpClient();
+            var post = new Dictionary<string, string>
+            {
+                { "username", username },
+                { "password", pass },
+                { "name", name },
+                { "description", description },
+                { "file", data },
+
+            };
+            var content = new FormUrlEncodedContent(post);
+
+            var response = await client.PostAsync("http://www.example.com/recepticle.aspx", content);
+
+            var status = await response.Content.ReadAsStringAsync();
+            Console.WriteLine("Response: " + status);
         }
         private static void CopyFilesRecursively(string sourcePath, string targetPath)
         {
